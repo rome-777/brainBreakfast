@@ -2,16 +2,17 @@
 import { Container, Paper, Box, Typography, Divider, Grid, List, ListItem, ListItemText, FormControl, TextField, IconButton } from '@mui/material';
 import { SendRounded } from '@mui/icons-material';
 import React, { useState, useEffect, useReducer, useRef, Fragment } from 'react';
+import { fetchOpenAiResponse } from '../../api/OpenAI';
 
 // -- CONSTANTS -- //
 const SET_ALL_MESSAGES = 'SET_ALL_MESSAGES';
 const SET_CURRENT_USER_MESSAGE = 'SET_CURRENT_MESSAGE';
-const HANDLE_SEND_USER_MESSAGE = 'HANDLE_SEND_USER_MESSAGE';
+const POST_NEW_MESSAGE = 'POST_NEW_MESSAGE';
 
 //-- REDUCER ACTIONS -- //
 const _setAllMessages = (messagesArray) => ({ type: SET_ALL_MESSAGES, messagesArray });
 const _setCurrentMessage = (message) => ({ type: SET_CURRENT_USER_MESSAGE, message });
-const _handleSendUserMessage = () => ({ type: HANDLE_SEND_USER_MESSAGE });
+const _handlePostNewMessage = (message) => ({ type: POST_NEW_MESSAGE, message });
 
 // -- REDUCER -- //
 const initialState = {
@@ -24,8 +25,8 @@ const reducer = (state, action) => {
             return { ...state, allMessages: action.messagesArray };
         case SET_CURRENT_USER_MESSAGE:
             return { ...state, currentMessage: action.message };
-        case HANDLE_SEND_USER_MESSAGE:
-            const updatedMessageList = [...state.allMessages, state.currentMessage];
+        case POST_NEW_MESSAGE:
+            const updatedMessageList = [...state.allMessages, action.message];
             return {
                 ...state,
                 allMessages: updatedMessageList,
@@ -61,14 +62,22 @@ export default function ChatBox() {
         // ** handle up and down arrows -- could use case switch
     };
 
-    const sendUserMessage = (e) => {
+    const sendUserMessage = async () => {
         if (state.currentMessage) {
-            console.log('sendng..');
-            dispatch(_handleSendUserMessage());
+            const userQuerry = state.currentMessage;
+            // make message object by using a utility (id based on timestamp)
+            dispatch(_handlePostNewMessage(userQuerry));
+            setLoading(true);
+            const apiResponse = await fetchApiResponse(userQuerry);
+            dispatch(_handlePostNewMessage(apiResponse));
+            setLoading(false);
         }
-        // ** add message to all messages in the state, mark as user message -> make message util with timestamp and id
-        // ** async logic to handle the API
     };
+
+    const fetchApiResponse = (inputQuerry) => {
+		console.log('fetching..');
+		return fetchOpenAiResponse(inputQuerry);
+	};
 
     // utility to map messages from state into list items
     // replace index with message id + add sender prop and text prop
@@ -82,9 +91,8 @@ export default function ChatBox() {
     );
 
     // LOGS //
-    console.log(state);
-    console.log(populateMessages);
-
+    // console.log(state);
+    // ---- //
     return (
         <Fragment>
             <Container>

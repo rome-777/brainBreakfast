@@ -9,7 +9,7 @@ export default function AppBar() {
             <Container>
                 <Box p={3}>
                     <Typography variant="h5" gutterBottom>
-                        App Bar
+                        Awesome AI Chat
                     </Typography>
                 </Box>
             </Container>
