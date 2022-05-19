@@ -1,6 +1,14 @@
 const path = require('path');
+const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+// reduce env variables to an object
+// const env = dotenv.config().parsed;
+// const envKeys = Object.keys(env).reduce((prev, next) => {
+//     prev[`process.env.${next}`] = JSON.stringify(env[next]);
+//     return prev;
+// }, {});
 
 module.exports = {
     entry: './src/client/index.js',
@@ -33,11 +41,11 @@ module.exports = {
         modules: ['src', 'node_modules']
     },
     devServer: {
-        port: 3090,
+        port: 3080,
         open: false,
         historyApiFallback: true,
         proxy: {
-            '/api': 'http://localhost:8090'
+            '/api': 'http://localhost:8080'
         }
     },
     plugins: [
@@ -45,6 +53,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: './public/index.html',
             filename: './index.html'
-        })
+        }),
+        new Dotenv()
     ]
 };

@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 
 // constants
-const PORT = process.env.PORT || 8090;
+const PORT = process.env.PORT || 8080;
 const DIST_PATH = path.join(__dirname, '../../dist');
 const PUBLIC_PATH = path.join(__dirname, '../../public');
 

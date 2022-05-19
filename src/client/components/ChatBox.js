@@ -44,8 +44,6 @@ export default function ChatBox() {
     const messagesEndRef = useRef(null);
     
     useEffect(() => {
-        // setAllMessages([]);
-        // scroll to bototom
         if(messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth'});
         }
@@ -75,7 +73,6 @@ export default function ChatBox() {
     };
 
     const fetchApiResponse = (inputQuerry) => {
-		console.log('fetching..');
 		return fetchOpenAiResponse(inputQuerry);
 	};
 
