@@ -1,0 +1,10 @@
+.message-list-item {
+    animation: pullUp 1s;
+}
+
+@keyframes pullUp {
+  from { bottom: -10px }
+  to { bottom: 0px }
+  0% { opacity: 0 }
+  100% { opacity: 1 }
+}
