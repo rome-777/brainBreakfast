@@ -7,7 +7,7 @@
     "node": "16.15.0"
   },
   "scripts": {
-    "build": "webpack --config=webpack.config.prod.js",
+    "build": "webpack --config=webpack.config.prod.js && echo $NODE_ENV > public/netlify-context.txt",
     "start": "npm run build && node src/server/index.js",
     "client": "webpack-dev-server --config=webpack.config.dev.js --devtool inline-source-map --hot",
     "server": "nodemon src/server/index.js --watch src/server",
