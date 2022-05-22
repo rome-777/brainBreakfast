@@ -10,7 +10,7 @@ const configuration = new Configuration({
     baseOptions: {
         headers: {
             "Content-Type": "application/json"
-        }
+        },
     }
 });
 const openai = new OpenAIApi(configuration);
@@ -24,8 +24,8 @@ export async function fetchOpenAiResponse(inputMessage) {
             max_tokens: 100,
             top_p: 1,
             frequency_penalty: 0,
-            presence_penalty: 0
-        });
+            presence_penalty: 0,
+        }, { timeout: 5000 });
         return response.data.choices[0].text;
     }
     catch (err) {
