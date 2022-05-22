@@ -2,13 +2,16 @@
 // ** add options for engine in the app (give a list of two cheapest ones)
 const ENGINE = 'text-curie-001';
 const END_POINT = 'completions';
-console.log(process.env);
-console.log(process.env.API_KEY_OPENAI);
 
 // -- CONFIGURATION -- //
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({
-  apiKey: process.env.API_KEY_OPENAI,
+    apiKey: process.env.API_KEY_OPENAI,
+    baseOptions: {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }
 });
 const openai = new OpenAIApi(configuration);
 

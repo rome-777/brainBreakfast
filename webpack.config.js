@@ -2,13 +2,8 @@ const path = require('path');
 const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-// reduce env variables to an object
-// const env = dotenv.config().parsed;
-// const envKeys = Object.keys(env).reduce((prev, next) => {
-//     prev[`process.env.${next}`] = JSON.stringify(env[next]);
-//     return prev;
-// }, {});
 
 module.exports = {
     entry: './src/client/index.js',
@@ -54,6 +49,9 @@ module.exports = {
             template: './public/index.html',
             filename: './index.html'
         }),
-        new Dotenv()
+        new Dotenv({
+            ignoreStub: true
+        }),
+        new BundleAnalyzerPlugin()
     ]
 };
