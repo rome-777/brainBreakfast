@@ -7,10 +7,10 @@
     "node": "16.15.0"
   },
   "scripts": {
-    "build": "webpack --config=webpack.config.prod.js && echo $NODE_ENV > public/netlify-context.txt",
+    "build": "webpack --config=webpack.config.prod.js",
     "start": "npm run build && node src/server/index.js",
     "client": "webpack-dev-server --config=webpack.config.dev.js --devtool inline-source-map --hot",
-    "server": "nodemon src/server/index.js --watch src/server",
+    "server": "nodemon --delay 10 src/server/index.js --watch src/server",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "clean": "rimraf dist",
     "seed": "echo \"Error: no seed script avaialble\" && exit 1",

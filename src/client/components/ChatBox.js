@@ -1,11 +1,10 @@
 
-import { Container, Paper, Box, Typography, Divider, Grid, List, ListItem, ListItemText, FormControl, TextField, IconButton } from '@mui/material';
+import { Container, Paper, Box, Typography, Divider, Grid, List, ListItem, FormControl, TextField, IconButton } from '@mui/material';
 import { SendRounded } from '@mui/icons-material';
-import React, { useState, useEffect, useReducer, useRef, Fragment } from 'react';
+import React, { useEffect, useReducer, useRef, Fragment } from 'react';
 import moment from 'moment';
 import { fetchOpenAiResponse } from '../../api/OpenAI';
-import { createMessage, MessageDiv } from './';
-import { messageList, messageLoading, useTimeout } from '../utilities/'
+import { messageList, messageLoading, initChatScript } from '../utilities/'
 
 // -- CONSTANTS -- //
 const SET_ALL_MESSAGES = 'SET_ALL_MESSAGES';
@@ -42,15 +41,27 @@ const reducer = (state, action) => {
 
 export default function ChatBox() {
     const [state, dispatch] = useReducer(reducer, initialState);
+    const initialized = useRef(false);
     const isLoading = useRef(false);
+    const isReady = useRef(false);
     const messagesEndRef = useRef(null);
     
+    useEffect(() => {
+        if (!initialized.current) {
+            initChatScript(postBotMessage, postApiResponse);
+            initialized.current = true;
+        }
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth'});
+        }
+    }, [state.allMessages]);
+
     const handleMessageInput = (e) => {
         dispatch(_setCurrentMessage(e.target.value));
     };
 
     const postUserMessage = () => {
-        if (state.currentMessage) {
+        if (state.currentMessage && isReady.current) {
             const userMessageText = state.currentMessage;
             dispatch(_handlePostNewMessage(createMessage('user', userMessageText)))
             postApiResponse(userMessageText);
@@ -63,11 +74,18 @@ export default function ChatBox() {
             const apiResponse = await fetchOpenAiResponse(textQuery);
             isLoading.current = false;
             dispatch(_handlePostNewMessage(createMessage('openai', apiResponse)));
+            isReady.current = true;
         }, 2000);
     }
 
+    const postBotMessage = (prompt, timeout) => {
+        setTimeout(() => {
+            dispatch(_handlePostNewMessage(createMessage('bot', prompt)));
+        }, timeout);
+    }
+
     const createMessage = (sender, text) => {
-        const dateString = moment(new Date().getTime()).format('dddd MMMM Do, h:mm:ss a');
+        const dateString = sender === 'bot' ? '' : moment(new Date().getTime()).format('dddd MMMM Do, h:mm:ss a');
         return {
             time: dateString,
             sender: sender,
@@ -82,30 +100,22 @@ export default function ChatBox() {
         }
     };
 
-    useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth'});
-        }
-    }, [state.allMessages]);
-
     // --- //
     // console.log(state);
     // ---- //
 
     return (
         <Fragment>
-            {/* --- */}
-            {/* { console.log('rendered') } */}
-            {/* --- */}
             <Container>
                 <Paper elevation={6}>
                     <Box p={3}>
                         <Grid container spacing={3} alignItems='center'>
-                            <Grid id='chat-dispay-messages' xs={12} item>
-                                <List id='chat-list-messages'>
+                            <Grid id='chat-dispay' xs={11} item>
+                                <List id='chat-message-list'>
+                                    {initialized.current  ? null : messageLoading()}
                                     {messageList(state.allMessages)}
                                     {isLoading.current ? messageLoading() : null}
-                                    <ListItem ref={messagesEndRef} />
+                                    <ListItem ref={messagesEndRef}/>
                                 </List>
                             </Grid>
                             <Divider/>
@@ -120,7 +130,7 @@ export default function ChatBox() {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid id='button-send-message' xs={1} item>
+                            <Grid id='button-send' xs={1} item>
                                 <IconButton
                                     onClick={postUserMessage}
                                     aria-label='send'
