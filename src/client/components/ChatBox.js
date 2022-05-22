@@ -90,8 +90,6 @@ export default function ChatBox() {
 
     // --- //
     // console.log(state);
-    // console.log(messageLoading())
-    console.log(isLoading)
     // ---- //
 
     return (
