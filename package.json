@@ -4,21 +4,17 @@
   "description": "",
   "main": "src/server/index.js",
   "engines": {
-    "node": "16.15.0",
-    "npm": "8.10.0"
+    "node": "16.15.0"
   },
   "scripts": {
-    "build": "webpack --mode production",
+    "build": "webpack --config=webpack.config.prod.js",
     "start": "npm run build && node src/server/index.js",
-    "client": "webpack serve --mode development --devtool inline-source-map --hot",
+    "client": "webpack-dev-server --config=webpack.config.dev.js --devtool inline-source-map --hot",
     "server": "nodemon src/server/index.js --watch src/server",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "clean": "rimraf dist",
     "seed": "echo \"Error: no seed script avaialble\" && exit 1",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku-prebuild": "echo This runs before Heroku installs dependencies.",
-    "heroku-postbuild": "echo This runs after Heroku installs dependencies, but before Heroku prunes and caches dependencies.",
-    "heroku-cleanup": "echo This runs after Heroku prunes and caches dependencies."
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "sideEffects": [
     "*.css"
