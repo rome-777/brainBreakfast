@@ -5,6 +5,7 @@ import React, { useState, useEffect, useReducer, useRef, Fragment } from 'react'
 import moment from 'moment';
 import { fetchOpenAiResponse } from '../../api/OpenAI';
 import { createMessage, MessageDiv } from './';
+import { messageList, messageLoading, useTimeout } from '../utilities/'
 
 // -- CONSTANTS -- //
 const SET_ALL_MESSAGES = 'SET_ALL_MESSAGES';
@@ -40,93 +41,72 @@ const reducer = (state, action) => {
 };
 
 export default function ChatBox() {
-    // const [user, setUser] = useState('');
     const [state, dispatch] = useReducer(reducer, initialState);
-    const [isLoading, setLoading] = useState(false);
+    const isLoading = useRef(false);
     const messagesEndRef = useRef(null);
     
-    useEffect(() => {
-        if(messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth'});
-        }
-    }, [state.allMessages]);
-
     const handleMessageInput = (e) => {
         dispatch(_setCurrentMessage(e.target.value));
     };
 
-    const handleEnterKey = (e) => {
-        if(e.key === 'Enter'){
-            sendUserMessage();
-        }
-        // ** handle up and down arrows -- could use case switch
-    };
-
-    const sendUserMessage = async () => {
+    const postUserMessage = () => {
         if (state.currentMessage) {
             const userMessageText = state.currentMessage;
-            dispatch(_handlePostNewMessage(createMessage('user', userMessageText)));
-            setLoading(true);
-            const apiResponse = await fetchOpenAiResponse(userMessageText);
-            dispatch(_handlePostNewMessage(createMessage('openai', apiResponse)));
-            setLoading(false);
-
-            console.log(state.allMessages)
+            dispatch(_handlePostNewMessage(createMessage('user', userMessageText)))
+            postApiResponse(userMessageText);
         }
     };
+
+    const postApiResponse = (textQuery) => {
+        isLoading.current = true;
+        setTimeout(async () => {
+            const apiResponse = await fetchOpenAiResponse(textQuery);
+            isLoading.current = false;
+            dispatch(_handlePostNewMessage(createMessage('openai', apiResponse)));
+        }, 2000);
+    }
 
     const createMessage = (sender, text) => {
         const dateString = moment(new Date().getTime()).format('dddd MMMM Do, h:mm:ss a');
-        const message = {
+        return {
             time: dateString,
             sender: sender,
             text: text
         }
-        return message;
     };
 
-    const populateMessages = state.allMessages.map((message, index) =>
+    const handleEnterKey = (e) => {
+        // ** handle up and down arrows -- could use case switch
+        if (e.key === 'Enter') {
+            postUserMessage();
+        }
+    };
 
-        <ListItem
-            key={index}
-            sx={{
-                justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
-                padding: '5px',
-            }}
-        >
-            <Paper
-                elevation={2}
-                sx={{
-                    backgroundColor: message.sender === 'user' ? '#d3eaf5' : '#eaddf0'
-                }}
-            >
-                <ListItemText
-                    sx={{
-                        padding: '10px'
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth'});
+        }
+    }, [state.allMessages]);
 
-                    }}
-                    primary={message.text}
-                    secondary={message.time}
-                />
-            </Paper>
-        </ListItem>
-    );
-
-    // LOGS //
-
+    // --- //
     // console.log(state);
-   
+    // console.log(messageLoading())
+    console.log(isLoading)
     // ---- //
 
     return (
         <Fragment>
+            {/* --- */}
+            {/* { console.log('rendered') } */}
+            {/* --- */}
             <Container>
                 <Paper elevation={6}>
                     <Box p={3}>
                         <Grid container spacing={3} alignItems='center'>
                             <Grid id='chat-dispay-messages' xs={12} item>
                                 <List id='chat-list-messages'>
-                                    {populateMessages}
+                                    {messageList(state.allMessages)}
+                                    {isLoading.current ? messageLoading() : null}
                                     <ListItem ref={messagesEndRef} />
                                 </List>
                             </Grid>
@@ -144,7 +124,7 @@ export default function ChatBox() {
                             </Grid>
                             <Grid id='button-send-message' xs={1} item>
                                 <IconButton
-                                    onClick={sendUserMessage}
+                                    onClick={postUserMessage}
                                     aria-label='send'
                                     color='primary'
                                 >
