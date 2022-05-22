@@ -2,7 +2,9 @@
 import { Container, Paper, Box, Typography, Divider, Grid, List, ListItem, ListItemText, FormControl, TextField, IconButton } from '@mui/material';
 import { SendRounded } from '@mui/icons-material';
 import React, { useState, useEffect, useReducer, useRef, Fragment } from 'react';
+import moment from 'moment';
 import { fetchOpenAiResponse } from '../../api/OpenAI';
+import { createMessage, MessageDiv } from './';
 
 // -- CONSTANTS -- //
 const SET_ALL_MESSAGES = 'SET_ALL_MESSAGES';
@@ -11,7 +13,7 @@ const POST_NEW_MESSAGE = 'POST_NEW_MESSAGE';
 
 //-- REDUCER ACTIONS -- //
 const _setAllMessages = (messagesArray) => ({ type: SET_ALL_MESSAGES, messagesArray });
-const _setCurrentMessage = (message) => ({ type: SET_CURRENT_USER_MESSAGE, message });
+const _setCurrentMessage = (text) => ({ type: SET_CURRENT_USER_MESSAGE, text });
 const _handlePostNewMessage = (message) => ({ type: POST_NEW_MESSAGE, message });
 
 // -- REDUCER -- //
@@ -24,7 +26,7 @@ const reducer = (state, action) => {
         case SET_ALL_MESSAGES:
             return { ...state, allMessages: action.messagesArray };
         case SET_CURRENT_USER_MESSAGE:
-            return { ...state, currentMessage: action.message };
+            return { ...state, currentMessage: action.text };
         case POST_NEW_MESSAGE:
             const updatedMessageList = [...state.allMessages, action.message];
             return {
@@ -62,34 +64,60 @@ export default function ChatBox() {
 
     const sendUserMessage = async () => {
         if (state.currentMessage) {
-            const userQuerry = state.currentMessage;
-            // make message object by using a utility (id based on timestamp)
-            dispatch(_handlePostNewMessage(userQuerry));
+            const userMessageText = state.currentMessage;
+            dispatch(_handlePostNewMessage(createMessage('user', userMessageText)));
             setLoading(true);
-            const apiResponse = await fetchApiResponse(userQuerry);
-            dispatch(_handlePostNewMessage(apiResponse));
+            const apiResponse = await fetchOpenAiResponse(userMessageText);
+            dispatch(_handlePostNewMessage(createMessage('openai', apiResponse)));
             setLoading(false);
+
+            console.log(state.allMessages)
         }
     };
 
-    const fetchApiResponse = (inputQuerry) => {
-		return fetchOpenAiResponse(inputQuerry);
-	};
+    const createMessage = (sender, text) => {
+        const dateString = moment(new Date().getTime()).format('dddd MMMM Do, h:mm:ss a');
+        const message = {
+            time: dateString,
+            sender: sender,
+            text: text
+        }
+        return message;
+    };
 
-    // utility to map messages from state into list items
-    // replace index with message id + add sender prop and text prop
-    // secondary={msg.messageText} 
-    const populateMessages = state.allMessages.map((msg, index) => 
-        <ListItem key={index}>
-            <ListItemText
-                primary={msg}
-            />
+    const populateMessages = state.allMessages.map((message, index) =>
+
+        <ListItem
+            key={index}
+            sx={{
+                justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
+                padding: '5px',
+            }}
+        >
+            <Paper
+                elevation={2}
+                sx={{
+                    backgroundColor: message.sender === 'user' ? '#d3eaf5' : '#eaddf0'
+                }}
+            >
+                <ListItemText
+                    sx={{
+                        padding: '10px'
+
+                    }}
+                    primary={message.text}
+                    secondary={message.time}
+                />
+            </Paper>
         </ListItem>
     );
 
     // LOGS //
+
     // console.log(state);
+   
     // ---- //
+
     return (
         <Fragment>
             <Container>
