@@ -14,8 +14,6 @@ const configuration = new Configuration({
     }
 });
 const openai = new OpenAIApi(configuration);
-console.log('process', process.env)
-console.log('apiKey', process.env.API_KEY_OPENAI)
 
 // -- RESPONSE -- //
 export async function fetchOpenAiResponse(inputMessage) {
