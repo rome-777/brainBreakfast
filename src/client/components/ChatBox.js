@@ -140,7 +140,7 @@ export default function ChatBox() {
                                         onChange={handleMessageInput}
                                         onKeyDown={handleEnterKey}
                                         value={state.currentMessage}
-                                        label='Ask me anything that comes to your mind..'
+                                        label='Ask me anything..'
                                         variant='outlined'
                                     />
                                 </FormControl>
