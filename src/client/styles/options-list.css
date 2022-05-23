@@ -1,0 +1,15 @@
+.option-list-item {
+    animation: pullUp 1s;
+    transition: color 1s;
+}
+
+.option-body:hover {
+    background-color: #f7bbb2
+}
+
+@keyframes pullUp {
+  from { bottom: -10px }
+  to { bottom: 0px }
+  0% { opacity: 0 }
+  100% { opacity: 1 }
+}
