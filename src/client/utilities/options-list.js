@@ -10,7 +10,7 @@ export const optionsList = (handleSelectedOption, options) => {
             key={index}
             sx={{
                 padding: '5px',
-                maxWidth: '50%'
+                maxWidth: '80%'
             }}
             onClick={(e) => handleSelectedOption(option, e)}
         >

@@ -18,7 +18,7 @@ export const messageList = (messages) => {
                 elevation={2}
                 sx={{
                     backgroundColor: message.sender === 'user' ? '#d3eaf5' : '#eaddf0',
-                    maxWidth: '50%'
+                    maxWidth: '80%'
                 }}
             >
                 <ListItemText
