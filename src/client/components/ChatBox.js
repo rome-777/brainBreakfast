@@ -1,4 +1,3 @@
-
 import { Container, Paper, Box, Typography, Divider, Grid, List, ListItem, FormControl, TextField, IconButton } from '@mui/material';
 import { SendRounded } from '@mui/icons-material';
 import React, { useEffect, useReducer, useRef, Fragment } from 'react';
@@ -77,6 +76,7 @@ export default function ChatBox() {
 
     const postUserMessage = () => {
         if (state.currentMessage && isReady.current) {
+            optionsRef.current = false;
             const userMessageText = state.currentMessage;
             dispatch(_handlePostNewMessage(createMessage('user', userMessageText)))
             postApiResponse(userMessageText);
