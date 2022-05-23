@@ -4,22 +4,25 @@ import { SendRounded } from '@mui/icons-material';
 import React, { useEffect, useReducer, useRef, Fragment } from 'react';
 import moment from 'moment';
 import { fetchOpenAiResponse } from '../../api/OpenAI';
-import { messageList, messageLoading, initChatScript } from '../utilities/'
+import { messageList, messageLoading, initChatScript, optionsList, initialOptions, optionResponse } from '../utilities/'
 
 // -- CONSTANTS -- //
 const SET_ALL_MESSAGES = 'SET_ALL_MESSAGES';
 const SET_CURRENT_USER_MESSAGE = 'SET_CURRENT_MESSAGE';
 const POST_NEW_MESSAGE = 'POST_NEW_MESSAGE';
+const LIST_OPTIONS = 'LIST_OPTIONS'
 
 //-- REDUCER ACTIONS -- //
 const _setAllMessages = (messagesArray) => ({ type: SET_ALL_MESSAGES, messagesArray });
 const _setCurrentMessage = (text) => ({ type: SET_CURRENT_USER_MESSAGE, text });
 const _handlePostNewMessage = (message) => ({ type: POST_NEW_MESSAGE, message });
+const _setOptions = (options) => ({ type: LIST_OPTIONS, options })
 
 // -- REDUCER -- //
 const initialState = {
     allMessages: [],
     currentMessage: '',
+    displayedOptions: []
 };
 const reducer = (state, action) => {
     switch (action.type) {
@@ -34,6 +37,8 @@ const reducer = (state, action) => {
                 allMessages: updatedMessageList,
                 currentMessage: ''
             };
+        case LIST_OPTIONS:
+            return { ...state, displayedOptions: action.options };
         default:
             return state;
     }
@@ -44,11 +49,12 @@ export default function ChatBox() {
     const initialized = useRef(false);
     const isLoading = useRef(false);
     const isReady = useRef(false);
+    const optionsRef = useRef(false);
     const messagesEndRef = useRef(null);
     
     useEffect(() => {
         if (!initialized.current) {
-            initChatScript(postBotMessage, postApiResponse);
+            initChatScript(postBotMessage, postApiResponse, displayOptions);
             initialized.current = true;
         }
         if (messagesEndRef.current) {
@@ -58,6 +64,15 @@ export default function ChatBox() {
 
     const handleMessageInput = (e) => {
         dispatch(_setCurrentMessage(e.target.value));
+    };
+
+    const createMessage = (sender, text) => {
+        const dateString = sender === 'bot' ? '' : moment(new Date().getTime()).format('dddd MMMM Do, h:mm:ss a');
+        return {
+            time: dateString,
+            sender: sender,
+            text: text
+        }
     };
 
     const postUserMessage = () => {
@@ -84,25 +99,20 @@ export default function ChatBox() {
         }, timeout);
     }
 
-    const createMessage = (sender, text) => {
-        const dateString = sender === 'bot' ? '' : moment(new Date().getTime()).format('dddd MMMM Do, h:mm:ss a');
-        return {
-            time: dateString,
-            sender: sender,
-            text: text
-        }
-    };
+    const displayOptions = (options) => {
+        optionsRef.current = true;
+        dispatch(_setOptions(options));
+    }
+
+    const handleSelectedOption = (optionKey, e) => {
+        e.preventDefault;
+        optionsRef.current = false;
+        optionResponse(postApiResponse, optionKey);
+    }
 
     const handleEnterKey = (e) => {
-        // ** handle up and down arrows -- could use case switch
-        if (e.key === 'Enter') {
-            postUserMessage();
-        }
+        if (e.key === 'Enter') postUserMessage();
     };
-
-    // --- //
-    // console.log(state);
-    // ---- //
 
     return (
         <Fragment>
@@ -115,6 +125,7 @@ export default function ChatBox() {
                                     {initialized.current  ? null : messageLoading()}
                                     {messageList(state.allMessages)}
                                     {isLoading.current ? messageLoading() : null}
+                                    {optionsRef.current ? optionsList(handleSelectedOption, state.displayedOptions) : null}
                                     <ListItem ref={messagesEndRef}/>
                                 </List>
                             </Grid>
@@ -125,7 +136,7 @@ export default function ChatBox() {
                                         onChange={handleMessageInput}
                                         onKeyDown={handleEnterKey}
                                         value={state.currentMessage}
-                                        label='Ask anything that comes to mind..'
+                                        label='Ask me anything that comes to your mind..'
                                         variant='outlined'
                                     />
                                 </FormControl>
