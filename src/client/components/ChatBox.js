@@ -4,7 +4,7 @@ import { SendRounded } from '@mui/icons-material';
 import React, { useEffect, useReducer, useRef, Fragment } from 'react';
 import moment from 'moment';
 import { fetchOpenAiResponse } from '../../api/OpenAI';
-import { messageList, messageLoading, initChatScript, optionsList, initialOptions, optionResponse } from '../utilities/'
+import { messageList, messageLoading, initChatScript, optionsList, optionResponse } from '../utilities/'
 
 // -- CONSTANTS -- //
 const SET_ALL_MESSAGES = 'SET_ALL_MESSAGES';
@@ -99,15 +99,19 @@ export default function ChatBox() {
         }, timeout);
     }
 
-    const displayOptions = (options) => {
+    const displayOptions = (options, timeout) => {
         optionsRef.current = true;
-        dispatch(_setOptions(options));
+        setTimeout(() => {
+            dispatch(_setOptions(options));
+        }, timeout);
     }
 
-    const handleSelectedOption = (optionKey, e) => {
+    const handleSelectedOption = (option, e) => {
         e.preventDefault;
         optionsRef.current = false;
-        optionResponse(postApiResponse, optionKey);
+        dispatch(_setOptions([]));
+        dispatch(_handlePostNewMessage(createMessage('user', option[1])))
+        optionResponse(postApiResponse, option[0]);
     }
 
     const handleEnterKey = (e) => {
@@ -147,7 +151,7 @@ export default function ChatBox() {
                                     aria-label='send'
                                     color='primary'
                                 >
-                                    <SendRounded />
+                                    <SendRounded sx={{ fontSize: "35px" }}/>
                                 </IconButton>
                             </Grid>                             
                         </Grid>

@@ -19,7 +19,7 @@ export const initalOptions = {
 export const initChatScript = async (postBotMessage, postApiResponse, displayOptions) => {
     await postApiResponse(allAiPrompts.greet);
     await postBotMessage(allBotPrompts.offerOptions, 4000);
-    await displayOptions(initalOptions);
+    await displayOptions(initalOptions, 5000);
 }
 
 export const optionResponse = async (postApiResponse, option) => {
