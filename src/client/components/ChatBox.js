@@ -145,7 +145,7 @@ export default function ChatBox() {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid id='button-send' xs={1} item>
+                            <Grid id='button-send' xs={1} item >
                                 <IconButton
                                     onClick={postUserMessage}
                                     aria-label='send'
